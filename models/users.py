@@ -1,17 +1,32 @@
-from pydantic import EmailStr
+from typing import Optional
 from sqlmodel import SQLModel, Field
 
 class User(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
-    name: str
-    email: EmailStr
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True, min_length=3, max_length=50)
+    email: str = Field(index=True, unique=True)
+    full_name: Optional[str] = None
+    is_active: bool = Field(default=True)
+    is_admin: bool = Field(default=False)
+
+class UserCreate(SQLModel):
+    username: str
+    email: str
+    full_name: Optional[str] = None
     password: str
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "name": "Example",
-                "email": "example@email.com",
-                "password": "example123_1"
-            }
-        }
-    }
+
+class UserRead(SQLModel):
+    id: int
+    username: str
+    email: str
+    full_name: Optional[str]
+    is_active: bool
+    is_admin: bool
+
+class UserUpdate(SQLModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    is_active: Optional[bool] = None
+    is_admin: Optional[bool] = None
+    password: Optional[str] = None 
