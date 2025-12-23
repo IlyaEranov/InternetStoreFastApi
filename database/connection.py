@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Session, create_engine
+from eralchemy import render_er
 
 database_file = "planner.db"
 database_connection_string = f"sqlite:///{database_file}"
@@ -7,6 +8,7 @@ engine_url = create_engine(database_connection_string, echo=True, connect_args=c
 
 def conn():
     SQLModel.metadata.create_all(engine_url)
+    render_er(SQLModel.metadata, "erd.png")
     
 def get_session():
     with Session(engine_url) as session:

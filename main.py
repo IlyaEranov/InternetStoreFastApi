@@ -4,17 +4,20 @@ from database.connection import conn
 
 from routes.users import user_router
 from routes.products import products_router
-
+from routes.orders import orders_router
+from routes.cart import cart_router
 import uvicorn
 
 app = FastAPI()
 app.include_router(user_router, prefix="/users")
 app.include_router(products_router, prefix="/products")
+app.include_router(orders_router, prefix="/orders")
+app.include_router(cart_router, prefix="/cart")
 
 @app.on_event("startup")
 def on_startup():
     conn()
-    
+
 @app.get("/")
 async def home():
     return RedirectResponse(url="/docs/")

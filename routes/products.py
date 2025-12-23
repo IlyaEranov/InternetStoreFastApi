@@ -5,7 +5,7 @@ from typing import List
 from models.products import Product, ProductCreate, ProductRead, ProductUpdate
 from database.connection import get_session 
 
-products_router = APIRouter(prefix="/products", tags=["products"])
+products_router = APIRouter(tags=["products"])
 
 @products_router.post("/", response_model=ProductRead, status_code=201)
 def create_product(product: ProductCreate, session: Session = Depends(get_session)):
@@ -30,7 +30,7 @@ def read_product(product_id: int, session: Session = Depends(get_session)):
     return product
 
 
-@products_router.patch("/{product_id}", response_model=ProductRead)
+@products_router.put("/{product_id}", response_model=ProductRead)
 def update_product(product_id: int, product_update: ProductUpdate, session: Session = Depends(get_session)):
     db_product = session.get(Product, product_id)
     if not db_product:

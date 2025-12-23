@@ -15,22 +15,20 @@ def create_user(user: UserCreate, session: Session = Depends(get_session)):
     session.refresh(db_user)
     return db_user
 
-
 @user_router.get("/", response_model=List[UserRead])
 def read_users(session: Session = Depends(get_session)):
     users = session.exec(select(User)).all()
     return users
 
-
 @user_router.get("/{user_id}", response_model=UserRead)
 def read_user(user_id: int, session: Session = Depends(get_session)):
+    print(user_id)
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-
-@user_router.patch("/{user_id}", response_model=UserRead)
+@user_router.put("/{user_id}", response_model=UserRead)
 def update_user(user_id: int, user_update: UserUpdate, session: Session = Depends(get_session)):
     db_user = session.get(User, user_id)
     if not db_user:
@@ -39,7 +37,6 @@ def update_user(user_id: int, user_update: UserUpdate, session: Session = Depend
     update_data = user_update.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_user, key, value)
-    
     session.add(db_user)
     session.commit()
     session.refresh(db_user)

@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 from decimal import Decimal
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 
 class Product(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -9,6 +9,8 @@ class Product(SQLModel, table=True):
     price: Decimal = Field(decimal_places=2, max_digits=10)
     stock: int = Field(default=0, ge=0) 
     is_available: bool = Field(default=True)
+    order_items: List["OrderItem"] = Relationship(back_populates="product")
+    cart_items: List["CartItem"] = Relationship(back_populates="product")
 
 class ProductCreate(SQLModel):
     name: str
