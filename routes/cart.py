@@ -21,7 +21,7 @@ def get_or_create_cart(user_id: int, session: Session) -> Cart:
     return cart
 
 
-@cart_router.get("/me", response_model=CartRead)
+@cart_router.get("/", response_model=CartRead)
 def get_my_cart(
     user_id: int = 1,
     session: Session = Depends(get_session)
@@ -57,7 +57,7 @@ def get_my_cart(
     )
 
 
-@cart_router.post("/add/{product_id}")
+@cart_router.post("/{product_id}")
 def add_to_cart(
     product_id: int,
     quantity: int = 1,
@@ -66,9 +66,9 @@ def add_to_cart(
 ):
     product = session.get(Product, product_id)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Товар не найден")
     if not product.is_available or product.stock < quantity:
-        raise HTTPException(status_code=400, detail="Not enough stock or product unavailable")
+        raise HTTPException(status_code=400, detail="Не хватает товара на складе")
 
     cart = get_or_create_cart(user_id, session)
 
@@ -81,17 +81,17 @@ def add_to_cart(
     if existing_item:
         existing_item.quantity += quantity
         if existing_item.quantity > product.stock:
-            raise HTTPException(status_code=400, detail="Not enough stock")
+            raise HTTPException(status_code=400, detail="Не хватает товара на складе")
         session.add(existing_item)
     else:
         new_item = CartItem(cart_id=cart.id, product_id=product_id, quantity=quantity)
         session.add(new_item)
 
     session.commit()
-    return {"message": "Product added to cart"}
+    return {"message": "Товар добавлен в корзину"}
 
 
-@cart_router.put("/update/{product_id}")
+@cart_router.put("/{product_id}")
 def update_cart_item(
     product_id: int,
     update: CartItemUpdate,
@@ -107,11 +107,11 @@ def update_cart_item(
             break
 
     if not item:
-        raise HTTPException(status_code=404, detail="Item not in cart")
+        raise HTTPException(status_code=404, detail="Товар не в корзине")
 
     product = session.get(Product, product_id)
     if update.quantity > 0 and (not product or product.stock < update.quantity):
-        raise HTTPException(status_code=400, detail="Not enough stock")
+        raise HTTPException(status_code=400, detail="Не хватает товара на складе")
 
     if update.quantity <= 0:
         session.delete(item)
@@ -120,7 +120,7 @@ def update_cart_item(
         session.add(item)
 
     session.commit()
-    return {"message": "Cart updated"}
+    return {"message": "Корзина обновлена"}
 
 
 @cart_router.delete("/clear")
@@ -133,4 +133,4 @@ def clear_cart(
         for item in cart.items:
             session.delete(item)
         session.commit()
-    return {"message": "Cart cleared"}
+    return {"message": "Корзина очищена"}

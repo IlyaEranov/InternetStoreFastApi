@@ -9,7 +9,7 @@ class User(SQLModel, table=True):
     password: str = Field(index=True, unique=True)
     is_active: bool = Field(default=True)
     is_admin: bool = Field(default=False)
-    orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"lazy": "selectin"})
+    orders: List["Order"] = Relationship(back_populates="user")
     cart: Optional["Cart"] = Relationship(back_populates="user")
 
 class UserCreate(SQLModel):
